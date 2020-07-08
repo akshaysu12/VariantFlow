@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+data:
+  config: |
+    {
+    namespace: $(NAMESPACE),
+    artifactRepository:
+    {
+        archiveLogs: true,
+        s3: {
+            bucket: $(artifactRepositoryBucket),
+            keyPrefix: $(artifactRepositoryKeyPrefix),
+            endpoint: s3.amazonaws.com,
+            insecure: false
+        }
+    }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pipeline-ui
+spec:
+  template:
+    spec:
+      containers:
+        - name: ml-pipeline-ui
+          env:
+            - name: ARGO_ARCHIVE_LOGS
+              value: "true"
+            - name: ARGO_ARCHIVE_ARTIFACTORY
+              value: s3
+            - name: ARGO_ARCHIVE_BUCKETNAME
+              value: $(artifactRepositoryBucket)
+            - name: ARGO_ARCHIVE_PREFIX
+              value: $(artifactRepositoryKeyPrefix)
+            - name: VIEWER_TENSORBOARD_POD_TEMPLATE_SPEC_PATH
+              value: /etc/config/viewer-tensorboard-template.json
+            - name: METADATA_ENVOY_SERVICE_SERVICE_HOST
+              value: metadata-envoy-service
+            - name: ML_PIPELINE_SERVICE_HOST
+              value: ml-pipeline
+            - name: DISABLE_GKE_METADATA
+              value: "true"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ml-pipeline-ui-viewer-template
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-pipeline
+spec:
+  template:
+    spec:
+      containers:
+        - name: ml-pipeline-api-server
+          env:
+            - name: OBJECTSTORECONFIG_SECURE
+              value: "true"
+            - name: OBJECTSTORECONFIG_BUCKETNAME
+              value: $(pipelineBucket)
+            - name: DBCONFIG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: username
+            - name: DBCONFIG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: password
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ml-pipeline-config
+          items:
+            - key: config.json
+              path: config.json
+            - key: sample_config.json
+              path: sample_config.json

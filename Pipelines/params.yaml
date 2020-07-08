@@ -1,0 +1,29 @@
+varReference:
+  - path: spec/template/spec/containers/args
+    kind: Deployment
+  - path: spec/template/spec/containers/image
+    kind: Deployment
+  - path: spec/template/spec/containers/env/value
+    kind: Deployment
+  - path: spec/template/spec/containers/env/valueFrom/secretKeyRef/name
+    kind: Deployment
+  - path: spec/template/spec/containers/env/valueFrom/secretKeyRef/key
+    kind: Deployment
+  - path: spec/template/metadata/annotations
+    kind: Deployment
+  - path: spec/template/spec/volumes/persistentVolumeClaim/claimName
+    kind: Deployment
+  - path: data
+    kind: ConfigMap
+  - path: spec/storageClassName
+    kind: PersistentVolumeClaim
+  - path: spec/resources/requests/storage
+    kind: PersistentVolumeClaim
+  - path: metadata/name
+    kind: PersistentVolumeClaim
+  - path: metadata/name
+    kind: StorageClass
+  - path: parameters/type
+    kind: StorageClass
+  - path: metadata/name
+    kind: Service
