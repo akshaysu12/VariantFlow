@@ -1,14 +1,12 @@
 variable "region" {
-  default     = "us-west-1"
+  default     = "us-west-2"
   description = "AWS region"
 }
 
 provider "aws" {
   version = ">= 2.28.1"
-  region  = "us-west-1"
+  region  = "us-west-2"
 }
-
-data "aws_availability_zones" "available" {}
 
 locals {
   cluster_name = "variantflow-eks-${random_string.suffix.result}"
@@ -25,7 +23,7 @@ module "vpc" {
 
   name                 = "variantflow-vpc"
   cidr                 = "10.0.0.0/16"
-  azs                  = data.aws_availability_zones.available.names
+  azs                  = ["us-west-2a", "us-west-2b"]
   private_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets       = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
   enable_nat_gateway   = true

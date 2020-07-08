@@ -12,11 +12,11 @@ module "eks" {
 
   worker_groups = [
     {
-      name                          = "worker-group-1"
+      name                          = "variantflow-worker-group"
       instance_type                 = "t2.medium"
       additional_userdata           = "echo foo bar"
       asg_desired_capacity          = 2
-      additional_security_group_ids = [aws_security_group.worker_group_mgmt_one.id]
+      additional_security_group_ids = [aws_security_group.variantflow_worker_group.id]
     }
   ]
 }
