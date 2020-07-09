@@ -36,6 +36,7 @@ def run_deepvariant_op(
           '--model_type', model_type,
           '--ref', reference,
           '--reads', reads,
+          '--regions', "chr20:10,000,000-10,010,000",
           '--output_vcf', output_vcf,
           '--output_gvcf', output_gvcf,
           '--num_shards', num_shards]
