@@ -16,6 +16,28 @@
 import kfp
 from kfp import dsl
 
+def retrieve_input(url):
+    return dsl.ContainerOp(
+        name='GCS - Pull',
+        image='google/cloud-sdk:279.0.0',
+        command=['sh', '-c'],
+        arguments=['gsutil cat $0 | tee $1', url, '/tmp/results.txt'],
+        file_outputs={
+            'data': '/tmp/results.txt',
+        }
+    )
+
+def store_results(url):
+    return dsl.ContainerOp(
+        name='S3 - Push',
+        image='amazon/aws-cli',
+        command=[],
+        arguments=[],
+        file_outputs={
+            'data': '/tmp/results.txt',
+        }
+    )
+
 def run_deepvariant_op(
     input_dir,
     output_dir,
@@ -24,8 +46,7 @@ def run_deepvariant_op(
     reads,
     output_vcf,
     output_gvcf,
-    num_shards
-):
+    num_shards ):
   """Creates container for running DeepVariant"""
 
   return dsl.ContainerOp(
@@ -44,7 +65,8 @@ def run_deepvariant_op(
 
 @dsl.pipeline(
     name='DeepVariant pipeline',
-    description='A pipeline for deepvariant.')
+    description='A pipeline for deepvariant.'
+)
 def deepvariant_pipeline(
     input_dir,
     output_dir,
@@ -53,10 +75,10 @@ def deepvariant_pipeline(
     reads,
     output_vcf,
     output_gvcf,
-    num_shards
-):
+    num_shards ):
+
   """A Pipeline for DeepVariant"""
-  run_deepvariant_op(
+  deploy = run_deepvariant_op(
       input_dir,
       output_dir,
       model_type,
